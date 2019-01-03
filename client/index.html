@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html>
+
 <head>
-<title>IPL DATA</title>
-<style>
-body{
+    <style>
+        body{
 margin-top: 30px;
 margin-left:40px;
 }
@@ -28,283 +29,83 @@ display:flex;
 flex-direction: row;
 justify-content: space-around;
 }
-</style>
-
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>	
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
-<script>
+    </style>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    
-    numberOfMatches();
-    function numberOfMatches() {
-    fetch('http://localhost:5000/matchesplayed').then(function(response){
-        
-        response.json().then(function(data){
-    column1(data);
-    }).catch(function(err){
-        console.log('FETCH parsing error',err)
-        })
-    })
-    }  
+    <script>
 
-    function numberOfWon() {
-    fetch('http://localhost:5000/matchesWon').then(function(response){
-
-    response.json().then(function(data){
-        console.log(data);
-        stacked(data);
-    }).catch(function(err){
-        console.log('FETCH parsing error',err)
-        })
-    })
-    }  
-    function extra_Runs() {
-    fetch('http://localhost:5000/extraRuns').then(function(response){
-        
-        response.json().then(function(data){
-    column2(data);
-    }).catch(function(err){
-        console.log('FETCH parsing error',err)
-        })
-    })
-    }  
-    function economical_bowler() {
-    fetch('http://localhost:5000/economical').then(function(response){
-        
-        response.json().then(function(data){
-    column3(data);
-    }).catch(function(err){
-        console.log('FETCH parsing error',err)
-        })
-    })
-    }  
-    
-</script>
-<script>
-    function column1(data){
-        console.log(data);
-                $('#container').highcharts({
-                chart: {
-                    type: "column"
-                },
-                title: {
-                    text: "Matches Played"
-                },
-                xAxis: {
-                    categories: Object.keys(data),
-                    type: 'category',
-                    allowDecimals: false,
-                    title: {
-                        text: ""
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: "NO OF MATCHES"
-                    }
-                },
-                series: [{
-                    name: 'YEARS',
-                    data: Object.values(data)
-                }]
-            }); 
-        }
-
-        function column2(data){
-        console.log(data);
-                $('#container').highcharts({
-                chart: {
-                    type: "column"
-                },
-                title: {
-                    text: "Extra Runs conceded per team"
-                },
-                xAxis: {
-                    categories: Object.keys(data),
-                    type: 'category',
-                    allowDecimals: false,
-                    title: {
-                        text: ""
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: "NO OF MATCHES"
-                    }
-                },
-                series: [{
-                    name: 'YEARS',
-                    data: Object.values(data)
-                }]
-            }); 
-        }
-
-
-        function column3(data){
-        console.log(data);
-                $('#container').highcharts({
-                chart: {
-                    type: "column"
-                },
-                title: {
-                    text: "Top economical bowler"
-                },
-                xAxis: {
-                    categories: Object.keys(data),
-                    type: 'category',
-                    allowDecimals: false,
-                    title: {
-                        text: ""
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: "NO OF MATCHES"
-                    }
-                },
-                series: [{
-                    name: 'YEARS',
-                    data: Object.values(data)
-                }]
-            }); 
-        }
-
-
-
-        
-function stacked(data) { 
-var finalArray=[];
-var returnArray={};
-var data1=data['Data'];
-var year=Object.keys(data1);
-let matches=Object.values(data1);
-var noOfMatches=[];
-var k=0;
-finalArray=Object.keys(data['teamNames']);
-var value=Object.values(matches);
-for(var i=0;i<finalArray.length;i++)
-{
-for(var j=0;j<10;j++)
-{
-    if(value[j][finalArray[i]])
-    {
-    noOfMatches[k]=value[j][finalArray[i]]
-    }
-    else{
-        noOfMatches[k]=0;
-    }
-    k++;
-}
-returnArray[finalArray[i]]=noOfMatches;
-noOfMatches=[];
-    k=0;
-}
-            let season = year
-            let teamNames = Object.keys(returnArray)
-            let teamArray=Object.values(returnArray)
-            // draw chart
-            $('#container').highcharts({
+function barChartNumberOfMatches(data) {
+    var matchesPlayed = data.reduce((matchPlayed,match)=>{
+            matchPlayed[match.season]=match.count;
+            return matchPlayed;
+    },{});
+    years = Object.keys(matchesPlayed);
+    playedPerSeason = Object.values(matchesPlayed);
+    $('#chartcontainer').highcharts({
         chart: {
-            type: "bar"
+            type: "column"
         },
         title: {
-            text: "Matches won of all teams over all the years of IPL."
+            text: "Matches Played"
         },
         xAxis: {
-            categories: season,
+            categories: years,
             type: 'category',
             allowDecimals: false,
             title: {
-                text: "Years"
+                text: ""
             }
         },
         yAxis: {
             title: {
-                text: "Total number of matches."
-            }
-        },
-        legend: {
-            reversed: true
-        },
-        plotOptions: {
-            series: {
-                stacking: 'normal'
+                text: "NO OF MATCHES"
             }
         },
         series: [{
-            name: teamNames[0],
-            data: teamArray[0]
-        },
-        {
-            name: teamNames[1],
-            data: teamArray[1]
-        },
-        {
-            name: teamNames[2],
-            data: teamArray[2]
-        },
-        {
-            name: teamNames[3],
-            data: teamArray[3]
-        },
-        {
-            name: teamNames[4],
-            data: teamArray[4]
-        },
-        {
-            name: teamNames[5],
-            data: teamArray[5]
-        },
-        {
-            name: teamNames[6],
-            data: teamArray[6]
-        },
-        {
-            name: teamNames[7],
-            data: teamArray[7]
-        },
-        {
-            name: teamNames[8],
-            data: teamArray[8]
-        },
-        {
-            name: teamNames[9],
-            data: teamArray[9]
-        },
-        {
-            name: teamNames[10],
-            data: teamArray[10]
-        },
-        {
-            name: teamNames[11],
-            data: teamArray[11]
-        },
-        {
-            name: teamNames[12],
-            data: teamArray[12]
-        },
-        
-        ]
+            name: 'YEARS',
+            data: playedPerSeason
+        }]
     });
 }
 
-
-</script>
-
+function numberOfMatches() {
+    fetch('http://localhost:3000/no-of-matches')
+        .then(res => res.json())
+       //.then(json => console.log(json))
+        .then(json => barChartNumberOfMatches(json))
+        .catch(error => console.error(error))
+}
+    </script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="./numberOfMatches.js"></script>
+    <script src="extraRuns.js"></script>
+    <script src="numberOfWon.js"></script>
+    <script src="/Users/puneetpurohit/Desktop/IPL/client/economyBowlers.js"></script>
 </head>
 
 <body>
-<div class ="header"><h1>IPL DATA</h1></div>
+
+    
+
+    <div id="chartcontainer"></div>
+
+
+    <div class ="header"><h1>IPL DATA</h1></div>
 <div class=flex-container>
 <button type="text"  onclick="numberOfMatches()">number of matches</button>
-<button type="text"  onclick="numberOfWon()">Matches Won</button>
-<button type="text"  onclick="extra_Runs()">Extra Runs</button>
-<button type="text"  onclick="economical_bowler()">Economical Bowler</button>
+<button type="text"  onclick="numberOfWinning()">Matches Won</button>
+<button type="text"  onclick="extraRuns()">Extra Runs</button>
+<button type="text"  onclick="economicalBowler()">Economical Bowler</button>
 </div>
 
         <div id="container" style="height: 400px"></div>
         <div id="contain" style="width:100%; height:400px;"></div>
+
 </body>
+
 </html>
